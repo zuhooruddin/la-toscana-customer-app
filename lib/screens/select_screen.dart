@@ -7,6 +7,7 @@ import '../core/models.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
 import '../state/cart.dart';
+import '../widgets/common.dart';
 
 String orderingLabel(S s, Branch b) => switch (b.orderingState) {
       'open' => s.t('open'),
@@ -43,62 +44,104 @@ class _SelectScreenState extends State<SelectScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(s.t('chooseRestaurant'))),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         children: [
-          SegmentedButton<String>(
-            segments: [
-              ButtonSegment(value: 'pickup', label: Text(s.t('pickup')), icon: const Icon(Icons.shopping_bag_outlined)),
-              ButtonSegment(value: 'delivery', label: Text(s.t('delivery')), icon: const Icon(Icons.delivery_dining_outlined)),
-            ],
-            selected: {_mode},
-            onSelectionChanged: (v) => setState(() => _mode = v.first),
-          ),
+          Row(children: [
+            Expanded(child: _ModeCard(icon: Icons.storefront_outlined, label: s.t('pickup'), selected: _mode == 'pickup', onTap: () => setState(() => _mode = 'pickup'))),
+            const SizedBox(width: 10),
+            Expanded(child: _ModeCard(icon: Icons.delivery_dining_outlined, label: s.t('delivery'), selected: _mode == 'delivery', onTap: () => setState(() => _mode = 'delivery'))),
+          ]),
           if (_mode == 'delivery' && selected != null && !deliveryOk)
-            Padding(padding: const EdgeInsets.only(top: 8), child: Text(s.t('deliveryUnavailable'), style: const TextStyle(color: Brand.tomatoDark))),
-          const SizedBox(height: 16),
-          RadioGroup<String>(
-            groupValue: _slug,
-            onChanged: (v) => setState(() => _slug = v),
-            child: Column(children: [
-              for (final b in app.branches)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: b.slug == _slug ? Brand.tomato : Brand.border, width: b.slug == _slug ? 2 : 1),
-                    ),
-                    child: RadioListTile<String>(
-                      value: b.slug,
-                      title: Text(b.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(b.address),
-                        const SizedBox(height: 4),
-                        Text(orderingLabel(s, b), style: TextStyle(color: b.canOrderOnline ? Brand.basil : Brand.muted, fontWeight: FontWeight.w600)),
-                      ]),
-                    ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Pill(text: s.t('deliveryUnavailable'), icon: Icons.info_outline, color: Brand.tomatoDark, background: Brand.tomatoSoft),
+            ),
+          const SizedBox(height: 22),
+          Text(s.t('restaurants'), style: Brand.h2),
+          const SizedBox(height: 10),
+          for (final b in app.branches)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: SoftCard(
+                padding: const EdgeInsets.all(14),
+                borderColor: b.slug == _slug ? Brand.tomato : null,
+                onTap: () => setState(() => _slug = b.slug),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(color: b.slug == _slug ? Brand.tomato : Brand.tomatoSoft, borderRadius: BorderRadius.circular(12)),
+                    child: Icon(Icons.local_pizza_outlined, color: b.slug == _slug ? Colors.white : Brand.tomato),
                   ),
-                ),
-            ]),
-          ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(b.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                      const SizedBox(height: 2),
+                      Text(b.address, style: const TextStyle(color: Brand.muted, fontSize: 13, height: 1.35)),
+                      const SizedBox(height: 8),
+                      Wrap(spacing: 6, runSpacing: 6, children: [
+                        BranchStatusPill(branch: b, label: orderingLabel(s, b)),
+                        if (b.delivery) Pill(text: s.t('delivery'), icon: Icons.delivery_dining_outlined, color: Brand.charcoal, background: Brand.cream2),
+                      ]),
+                    ]),
+                  ),
+                  Icon(b.slug == _slug ? Icons.radio_button_checked : Icons.radio_button_off, color: b.slug == _slug ? Brand.tomato : Brand.hint),
+                ]),
+              ),
+            ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: FilledButton(
-            onPressed: _slug == null || (_mode == 'delivery' && !deliveryOk)
-                ? null
-                : () async {
-                    final cart = context.read<CartStore>();
-                    if (cart.branchSlug != null && cart.branchSlug != _slug && !cart.isEmpty) cart.clear();
-                    await context.read<AppState>().selectBranch(_slug!, _mode);
-                    if (context.mounted) context.canPop() ? context.pop() : context.go('/menu');
-                  },
-            child: Text(s.t('select')),
-          ),
+      bottomNavigationBar: BottomActionBar(
+        child: FilledButton(
+          onPressed: _slug == null || (_mode == 'delivery' && !deliveryOk)
+              ? null
+              : () async {
+                  final cart = context.read<CartStore>();
+                  if (cart.branchSlug != null && cart.branchSlug != _slug && !cart.isEmpty) cart.clear();
+                  await context.read<AppState>().selectBranch(_slug!, _mode);
+                  if (context.mounted) context.canPop() ? context.pop() : context.go('/menu');
+                },
+          child: Text(s.t('select')),
         ),
       ),
     );
   }
+}
+
+class _ModeCard extends StatelessWidget {
+  const _ModeCard({required this.icon, required this.label, required this.selected, required this.onTap});
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => Semantics(
+        selected: selected,
+        button: true,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color: selected ? Brand.tomato : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: selected ? Brand.tomato : Brand.border),
+            boxShadow: selected ? Brand.shadowPrimary : Brand.shadow,
+          ),
+          child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(children: [
+                  Icon(icon, color: selected ? Colors.white : Brand.tomato, size: 26),
+                  const SizedBox(height: 6),
+                  Text(label, style: TextStyle(fontWeight: FontWeight.w800, color: selected ? Colors.white : Brand.charcoal)),
+                ]),
+              ),
+            ),
+          ),
+        ),
+      );
 }

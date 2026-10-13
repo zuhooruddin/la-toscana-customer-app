@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../core/i18n.dart';
+import '../core/theme.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 
@@ -23,6 +24,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _marketing = false;
   bool _terms = false;
   bool _busy = false;
+  bool _showPassword = false;
 
   @override
   void dispose() {
@@ -56,19 +58,25 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     final s = S.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(_register ? s.t('register') : s.t('login'))),
+      appBar: AppBar(),
       body: Form(
         key: _form,
-        child: ListView(padding: const EdgeInsets.all(16), children: [
+        child: ListView(padding: const EdgeInsets.fromLTRB(20, 0, 20, 32), children: [
+          const Center(child: BrandLogo(height: 72)),
+          const SizedBox(height: 18),
+          Text(_register ? s.t('registerTitle') : s.t('loginTitle'), textAlign: TextAlign.center, style: Brand.h1),
+          const SizedBox(height: 6),
+          Text(s.t('authSubtitle'), textAlign: TextAlign.center, style: const TextStyle(color: Brand.muted, height: 1.45)),
+          const SizedBox(height: 24),
           if (_register) ...[
-            TextFormField(controller: _name, decoration: InputDecoration(labelText: s.t('name')), textCapitalization: TextCapitalization.words, validator: (v) => (v ?? '').trim().isEmpty ? s.t('name') : null),
-            const SizedBox(height: 10),
-            TextFormField(controller: _phone, decoration: InputDecoration(labelText: s.t('phone')), keyboardType: TextInputType.phone),
+            TextFormField(controller: _name, decoration: InputDecoration(labelText: s.t('name'), prefixIcon: const Icon(Icons.person_outline)), textCapitalization: TextCapitalization.words, validator: (v) => (v ?? '').trim().isEmpty ? s.t('name') : null),
+            const SizedBox(height: 12),
+            TextFormField(controller: _phone, decoration: InputDecoration(labelText: s.t('phone'), prefixIcon: const Icon(Icons.phone_outlined)), keyboardType: TextInputType.phone),
             const SizedBox(height: 10),
           ],
           TextFormField(
             controller: _email,
-            decoration: const InputDecoration(labelText: 'Email'),
+            decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.mail_outline)),
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.email],
             validator: (v) => RegExp(r'^\S+@\S+\.\S+$').hasMatch((v ?? '').trim()) ? null : 'Email',
@@ -76,9 +84,19 @@ class _AuthScreenState extends State<AuthScreen> {
           const SizedBox(height: 10),
           TextFormField(
             controller: _password,
-            obscureText: true,
+            obscureText: !_showPassword,
             autofillHints: [_register ? AutofillHints.newPassword : AutofillHints.password],
-            decoration: InputDecoration(labelText: s.t('password'), helperText: _register ? s.t('passwordHint') : null),
+            decoration: InputDecoration(
+              labelText: s.t('password'),
+              helperText: _register ? s.t('passwordHint') : null,
+              helperMaxLines: 2,
+              prefixIcon: const Icon(Icons.lock_outline),
+              suffixIcon: IconButton(
+                tooltip: s.t('password'),
+                icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                onPressed: () => setState(() => _showPassword = !_showPassword),
+              ),
+            ),
             validator: (v) {
               final p = v ?? '';
               if (!_register) return p.isEmpty ? s.t('password') : null;
@@ -89,7 +107,7 @@ class _AuthScreenState extends State<AuthScreen> {
             CheckboxListTile(value: _marketing, onChanged: (v) => setState(() => _marketing = v ?? false), title: Text(s.t('marketing')), controlAffinity: ListTileControlAffinity.leading, contentPadding: EdgeInsets.zero),
             CheckboxListTile(value: _terms, onChanged: (v) => setState(() => _terms = v ?? false), title: Text(s.t('terms')), controlAffinity: ListTileControlAffinity.leading, contentPadding: EdgeInsets.zero),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: 22),
           FilledButton(onPressed: _busy ? null : _submit, child: _busy ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) : Text(_register ? s.t('register') : s.t('login'))),
           TextButton(onPressed: () => setState(() => _register = !_register), child: Text(_register ? s.t('haveAccount') : s.t('noAccount'))),
         ]),

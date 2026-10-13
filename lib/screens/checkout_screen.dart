@@ -286,13 +286,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const SizedBox(height: 80),
         ]),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: FilledButton(
-            onPressed: _submitting || q == null || !q.ok ? null : _place,
-            child: _submitting ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) : Text('${s.t('placeOrder')}${q != null ? ' · ${eur(q.totalCents, app.lang)}' : ''}'),
-          ),
+      bottomNavigationBar: BottomActionBar(
+        child: FilledButton(
+          onPressed: _submitting || q == null || !q.ok ? null : _place,
+          child: _submitting ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) : Text('${s.t('placeOrder')}${q != null ? ' · ${eur(q.totalCents, app.lang)}' : ''}'),
         ),
       ),
     );
@@ -303,7 +300,7 @@ class _Section extends StatelessWidget {
   const _Section(this.title);
   final String title;
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(top: 22, bottom: 8), child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)));
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(top: 22, bottom: 8), child: Text(title, style: Brand.h3));
 }
 
 class _Row extends StatelessWidget {
@@ -326,7 +323,11 @@ class _Box extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: danger ? const Color(0xFFFDECEA) : const Color(0xFFE8EFFF), borderRadius: BorderRadius.circular(10)),
-        child: Text(text, style: TextStyle(color: danger ? Brand.tomatoDark : const Color(0xFF1E3A8A))),
+        decoration: BoxDecoration(color: danger ? Brand.tomatoSoft : Brand.warningSoft, borderRadius: BorderRadius.circular(12)),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(danger ? Icons.error_outline : Icons.info_outline, size: 18, color: danger ? Brand.tomatoDark : Brand.warning),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text, style: TextStyle(color: danger ? Brand.tomatoDark : Brand.warning, height: 1.4))),
+        ]),
       );
 }

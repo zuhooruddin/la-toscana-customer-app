@@ -18,6 +18,13 @@ class AppState extends ChangeNotifier {
   final TokenStore tokens;
 
   String lang = 'es';
+
+  /// Store listings + live languages from admin → settings (GET /public/site). Null until loaded.
+  String? appStoreUrl;
+  String? playStoreUrl;
+  /// Languages the owner enabled that this app has strings for (always includes Spanish).
+  List<String> languages = const ['es', 'en'];
+  static const supportedLanguages = ['es', 'en'];
   String? branchSlug;
   String mode = 'pickup'; // pickup | delivery
   List<Branch> branches = [];
@@ -54,12 +61,26 @@ class AppState extends ChangeNotifier {
       if (branchSlug != null && branch == null) branchSlug = null; // restaurant unpublished
       menu = Menu.fromJson(results[1]);
       banners = (results[2]['items'] as List? ?? const []).map((b) => Banner.fromJson((b as Map).cast<String, dynamic>())).toList();
+      await _loadSite();
     } catch (e) {
       error = e;
     } finally {
       loading = false;
       notifyListeners();
     }
+  }
+
+  /// Optional: a failure here never blocks the menu.
+  Future<void> _loadSite() async {
+    try {
+      final site = await api.get<Map<String, dynamic>>('/api/v1/public/site', query: {'lang': lang});
+      final apps = (site['apps'] as Map?)?.cast<String, dynamic>() ?? const {};
+      appStoreUrl = apps['ios'] as String?;
+      playStoreUrl = apps['android'] as String?;
+      final enabled = ((site['languages'] as List?) ?? const []).map((l) => '${(l as Map)['code']}').toSet();
+      languages = supportedLanguages.where((l) => l == 'es' || enabled.contains(l)).toList();
+      if (!languages.contains(lang)) lang = 'es';
+    } catch (_) {}
   }
 
   Future<void> selectBranch(String slug, String newMode) async {

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launcher name (≤ 12 visible characters on most launchers). Store title lives in project-docs/docs/aso. -->
+    <string name="app_name">La Toscana</string>
+</resources>

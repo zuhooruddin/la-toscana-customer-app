@@ -1,11 +1,11 @@
 {
-    "name": "la_toscana_customer",
-    "short_name": "la_toscana_customer",
+    "name": "La Toscana Pizzeria",
+    "short_name": "La Toscana",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Pide pizza artesanal y pasta en Barbastro, Fraga y Huesca.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

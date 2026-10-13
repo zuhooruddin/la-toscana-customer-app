@@ -107,7 +107,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               const Icon(Icons.check_circle, color: Brand.basil, size: 64),
               const SizedBox(height: 12),
-              Text(s.t('booked'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+              Text(s.t('booked'), style: Brand.h2),
               const SizedBox(height: 6),
               Text('${branch?.name ?? ''}\n$_done', textAlign: TextAlign.center),
             ]),

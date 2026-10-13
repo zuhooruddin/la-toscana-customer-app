@@ -8,6 +8,7 @@ import '../core/config.dart';
 import '../core/format.dart';
 import '../core/i18n.dart';
 import '../core/models.dart';
+import '../core/review.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
 import '../state/orders.dart';
@@ -45,64 +46,83 @@ class _AccountScreenState extends State<AccountScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: Text(s.t('account'))),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
+      body: ListView(padding: const EdgeInsets.fromLTRB(16, 4, 16, 32), children: [
+        _ProfileHeader(user: user),
         if (user == null) ...[
-          Text(s.t('guestInfo'), style: const TextStyle(color: Brand.muted)),
-          const SizedBox(height: 12),
-          FilledButton(onPressed: () => context.push('/login'), child: Text(s.t('login'))),
-          const SizedBox(height: 8),
-          OutlinedButton(onPressed: () => context.push('/login?mode=register'), child: Text(s.t('register'))),
-          if (tracked.items.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            Text(s.t('myOrders'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            for (final o in tracked.items)
-              ListTile(contentPadding: EdgeInsets.zero, title: Text(o.number), subtitle: Text(dateTime(o.at, app.lang)), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/order/${o.id}')),
-          ],
-        ] else ...[
-          Card(
-            child: ListTile(
-              leading: const CircleAvatar(backgroundColor: Brand.tomato, foregroundColor: Colors.white, child: Icon(Icons.person)),
-              title: Text(user.name ?? user.email, style: const TextStyle(fontWeight: FontWeight.w700)),
-              subtitle: Text([user.email, user.phone].whereType<String>().join(' · ')),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(s.t('myOrders'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-          if (_error != null)
+          const SizedBox(height: 14),
+          Row(children: [
+            Expanded(child: FilledButton(onPressed: () => context.push('/login'), child: Text(s.t('login')))),
+            const SizedBox(width: 10),
+            Expanded(child: OutlinedButton(onPressed: () => context.push('/login?mode=register'), child: Text(s.t('register')))),
+          ]),
+        ],
+        if (user != null || tracked.items.isNotEmpty) ...[
+          SectionHeader(title: s.t('myOrders'), padding: const EdgeInsets.fromLTRB(4, 26, 4, 10)),
+          if (user == null)
+            _Group(children: [
+              for (final o in tracked.items)
+                _OrderRow(title: o.number, subtitle: dateTime(o.at, app.lang), onTap: () => context.push('/order/${o.id}')),
+            ])
+          else if (_error != null)
             ErrorRetry(error: _error!, onRetry: _loadOrders)
           else if (_orders == null)
             const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator()))
           else if (_orders!.isEmpty)
-            Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Text(s.t('noOrders'), style: const TextStyle(color: Brand.muted)))
+            SoftCard(
+              child: Row(children: [
+                const Icon(Icons.receipt_long_outlined, color: Brand.hint),
+                const SizedBox(width: 12),
+                Expanded(child: Text(s.t('noOrders'), style: const TextStyle(color: Brand.muted))),
+                TextButton(onPressed: () => context.go('/menu'), child: Text(s.t('orderNow'))),
+              ]),
+            )
           else
-            for (final o in _orders!)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text('${o.number} · ${eur(o.totalCents, app.lang)}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text('${dateTime(o.createdAt, app.lang)} · ${s.t('status.${o.status}')}'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/order/${o.id}'),
+            _Group(children: [
+              for (final o in _orders!)
+                _OrderRow(
+                  title: '${o.number} · ${eur(o.totalCents, app.lang)}',
+                  subtitle: dateTime(o.createdAt, app.lang),
+                  status: s.t('status.${o.status}'),
+                  onTap: () => context.push('/order/${o.id}'),
+                ),
+            ]),
+        ],
+        SectionHeader(title: s.t('settings'), padding: const EdgeInsets.fromLTRB(4, 26, 4, 10)),
+        _Group(children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(children: [
+              const _TileIcon(Icons.language),
+              const SizedBox(width: 14),
+              Expanded(child: Text(s.t('language'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
+              SegmentedButton<String>(
+                // Only languages the owner enabled (admin → settings → languages) and the app has strings for.
+                showSelectedIcon: false,
+                style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                segments: [for (final l in app.languages) ButtonSegment(value: l, label: Text(l.toUpperCase()))],
+                selected: {app.lang},
+                onSelectionChanged: (v) => app.setLang(v.first),
               ),
-        ],
-        const Divider(height: 32),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.language),
-          title: Text(s.t('language')),
-          trailing: SegmentedButton<String>(
-            segments: const [ButtonSegment(value: 'es', label: Text('ES')), ButtonSegment(value: 'en', label: Text('EN'))],
-            selected: {app.lang},
-            onSelectionChanged: (v) => app.setLang(v.first),
+            ]),
           ),
-        ),
-        ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.storefront_outlined), title: Text(s.t('restaurants')), onTap: () => context.push('/restaurants')),
-        ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.event_seat_outlined), title: Text(s.t('reservations')), onTap: () => context.push('/reservations')),
-        ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.privacy_tip_outlined), title: Text(s.t('privacy')), onTap: () => launchUrl(Uri.parse('${AppConfig.websiteUrl}/privacidad'), mode: LaunchMode.externalApplication)),
-        ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.gavel_outlined), title: Text(s.t('legal')), onTap: () => launchUrl(Uri.parse('${AppConfig.websiteUrl}/aviso-legal'), mode: LaunchMode.externalApplication)),
+          _Tile(icon: Icons.storefront_outlined, title: s.t('restaurants'), onTap: () => context.push('/restaurants')),
+          _Tile(icon: Icons.event_seat_outlined, title: s.t('reservations'), onTap: () => context.push('/reservations')),
+          _Tile(icon: Icons.star_outline_rounded, title: s.t('rateApp'), onTap: () => ReviewPrompt.openStore(appStoreUrl: app.appStoreUrl)),
+        ]),
+        SectionHeader(title: s.t('info'), padding: const EdgeInsets.fromLTRB(4, 26, 4, 10)),
+        _Group(children: [
+          _Tile(icon: Icons.privacy_tip_outlined, title: s.t('privacy'), external: true, onTap: () => launchUrl(Uri.parse('${AppConfig.websiteUrl}/privacidad'), mode: LaunchMode.externalApplication)),
+          _Tile(icon: Icons.gavel_outlined, title: s.t('legal'), external: true, onTap: () => launchUrl(Uri.parse('${AppConfig.websiteUrl}/aviso-legal'), mode: LaunchMode.externalApplication)),
+        ]),
         if (user != null) ...[
-          ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.logout), title: Text(s.t('logout')), onTap: () => app.logout()),
-          ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.delete_outline, color: Brand.tomatoDark), title: Text(s.t('deleteAccount'), style: const TextStyle(color: Brand.tomatoDark)), onTap: () => _delete(context)),
+          const SizedBox(height: 16),
+          _Group(children: [
+            _Tile(icon: Icons.logout, title: s.t('logout'), onTap: () => app.logout()),
+            _Tile(icon: Icons.delete_outline, title: s.t('deleteAccount'), danger: true, onTap: () => _delete(context)),
+          ]),
         ],
+        const SizedBox(height: 28),
+        const Center(child: Opacity(opacity: 0.85, child: BrandLogo(height: 40))),
       ]),
     );
   }
@@ -127,4 +147,118 @@ class _AccountScreenState extends State<AccountScreen> {
       pw.dispose();
     }
   }
+}
+
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({required this.user});
+  final AppUser? user;
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final u = user;
+    final name = u?.name?.trim();
+    final initial = (name != null && name.isNotEmpty ? name : u?.email ?? '').characters.firstOrNull?.toUpperCase();
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(gradient: Brand.heroGradient, borderRadius: BorderRadius.circular(22), boxShadow: Brand.shadow),
+      child: Row(children: [
+        Container(
+          width: 56,
+          height: 56,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: Colors.white54, width: 3)),
+          child: initial == null
+              ? const Icon(Icons.person_rounded, color: Brand.tomato, size: 30)
+              : Text(initial, style: Brand.h2.copyWith(color: Brand.tomato)),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              u == null ? s.t('welcomeGuest') : s.t('hello').replaceAll('{name}', name?.isNotEmpty == true ? name!.split(' ').first : u.email),
+              style: Brand.h3.copyWith(color: Colors.white, fontSize: 20),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              u == null ? s.t('guestInfo') : [u.email, u.phone].whereType<String>().join(' · '),
+              style: const TextStyle(color: Color(0xE6FFFFFF), fontSize: 13, height: 1.4),
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+/// White rounded group of rows separated by dividers (settings style).
+class _Group extends StatelessWidget {
+  const _Group({required this.children});
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), border: Border.all(color: Brand.border), boxShadow: Brand.shadow),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) const Divider(height: 1, indent: 16, endIndent: 16),
+              children[i],
+            ],
+          ]),
+        ),
+      );
+}
+
+class _TileIcon extends StatelessWidget {
+  const _TileIcon(this.icon, {this.danger = false});
+  final IconData icon;
+  final bool danger;
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(color: danger ? Brand.tomatoSoft : Brand.cream, borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, size: 20, color: danger ? Brand.tomatoDark : Brand.charcoal),
+      );
+}
+
+class _Tile extends StatelessWidget {
+  const _Tile({required this.icon, required this.title, required this.onTap, this.danger = false, this.external = false});
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final bool danger;
+  final bool external;
+  @override
+  Widget build(BuildContext context) => ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+        leading: _TileIcon(icon, danger: danger),
+        title: Text(title, style: TextStyle(color: danger ? Brand.tomatoDark : Brand.charcoal)),
+        trailing: Icon(external ? Icons.open_in_new : Icons.chevron_right, size: external ? 18 : 22, color: Brand.hint),
+        onTap: onTap,
+      );
+}
+
+class _OrderRow extends StatelessWidget {
+  const _OrderRow({required this.title, required this.subtitle, required this.onTap, this.status});
+  final String title;
+  final String subtitle;
+  final String? status;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: const _TileIcon(Icons.receipt_long_outlined),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
+            Text(subtitle, style: const TextStyle(color: Brand.muted, fontSize: 12.5)),
+            if (status != null) Pill(text: status!, color: Brand.charcoal, background: Brand.cream2),
+          ]),
+        ),
+        trailing: const Icon(Icons.chevron_right, color: Brand.hint),
+        onTap: onTap,
+      );
 }

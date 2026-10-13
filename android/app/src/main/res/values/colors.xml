@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand tomato (website tomato token) behind the adaptive launcher icon. -->
+    <color name="ic_launcher_background">#D41423</color>
+    <!-- Website cream background, shown while Flutter starts. -->
+    <color name="splash_background">#FAF7F1</color>
+</resources>

@@ -10,6 +10,7 @@ import '../core/config.dart';
 import '../core/format.dart';
 import '../core/i18n.dart';
 import '../core/models.dart';
+import '../core/review.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
 import '../state/orders.dart';
@@ -51,7 +52,14 @@ class _OrderScreenState extends State<OrderScreen> {
   Future<void> _load() async {
     try {
       final r = await context.read<Api>().get<Map<String, dynamic>>('/api/v1/orders/${widget.orderId}', query: {'token': _token});
-      if (mounted) setState(() => (_order = CustomerOrder.fromJson((r['order'] as Map).cast<String, dynamic>()), _error = null));
+      if (!mounted) return;
+      final o = CustomerOrder.fromJson((r['order'] as Map).cast<String, dynamic>());
+      setState(() => (_order = o, _error = null));
+      // Opened from an e-mailed link: store the order number next to its token for the "my orders" list.
+      final tracked = context.read<TrackedOrders>();
+      final token = _token;
+      if (token != null && tracked.items.any((t) => t.id == o.id && t.number.isEmpty)) await tracked.add(o.id, token, o.number);
+      if (o.status == 'delivered' || o.status == 'picked_up') await ReviewPrompt.onOrderCompleted(o.id);
     } catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -122,7 +130,7 @@ class _OrderScreenState extends State<OrderScreen> {
               onRefresh: _load,
               child: ListView(padding: const EdgeInsets.all(16), children: [
                 if (o.status == 'confirmed' && DateTime.now().difference(o.createdAt).inMinutes < 2)
-                  Text(s.t('orderPlaced'), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Brand.basil)),
+                  Text(s.t('orderPlaced'), style: Brand.h1.copyWith(color: Brand.basilDark)),
                 Row(children: [
                   Expanded(child: Text(o.branchName, style: const TextStyle(fontWeight: FontWeight.w700))),
                   Icon(Icons.circle, size: 10, color: _live ? Colors.green : Brand.muted),
@@ -186,7 +194,7 @@ class _Steps extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context);
     if (order.status == 'cancelled' || order.status == 'refunded') {
-      return Text(s.t('status.${order.status}'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Brand.tomatoDark));
+      return Text(s.t('status.${order.status}'), style: Brand.h2.copyWith(color: Brand.tomatoDark));
     }
     final flow = order.type == 'delivery' ? ['confirmed', 'preparing', 'ready', 'out_for_delivery', 'delivered'] : ['confirmed', 'preparing', 'ready', 'picked_up'];
     final idx = flow.indexOf(order.status);
