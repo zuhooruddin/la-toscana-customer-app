@@ -141,6 +141,11 @@ void main() {
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(wrap(const RestaurantsScreen()));
         await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.text('Opening hours'),
+          180,
+          scrollable: find.descendant(of: find.byType(CustomScrollView), matching: find.byType(Scrollable)).first,
+        );
         await Scrollable.ensureVisible(
           tester.element(find.text('Opening hours')),
           alignment: 0.2,

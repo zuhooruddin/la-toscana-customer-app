@@ -72,7 +72,10 @@ flutter:
 
   # Brand assets shared with the website (logo from admin → identity, ambience photo, Playfair Display + Manrope).
   assets:
-    - assets/images/
+    - assets/images/logo.webp
+    - assets/images/hero.jpg
+    - assets/images/pizza-hero.jpg
+    - assets/images/italian-header.png
 
   fonts:
     - family: Playfair
