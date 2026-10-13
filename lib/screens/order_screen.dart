@@ -61,8 +61,16 @@ class _OrderScreenState extends State<OrderScreen> {
     final tokens = context.read<Api>().tokens;
     final s = io.io(
       AppConfig.apiUrl,
-      io.OptionBuilder().setTransports(['websocket']).disableAutoConnect().setAuth({if (tokens.access != null) 'token': tokens.access}).build(),
+      io.OptionBuilder()
+          .setTransports(['websocket'])
+          .disableAutoConnect()
+          .enableForceNew() // one manager per screen; a disposed cached manager would never reconnect
+          .enableReconnection()
+          .setAuth({if (tokens.access != null) 'token': tokens.access})
+          .build(),
     );
+    // Tokens rotate: send the current one on every reconnection attempt (the room is re-joined in onConnect).
+    s.onReconnectAttempt((_) => s.auth = {if (tokens.access != null) 'token': tokens.access});
     s.onConnect((_) {
       s.emitWithAck('join_order', {'orderId': widget.orderId, 'token': _token}, ack: (dynamic a) {
         if (mounted) setState(() => _live = a is Map && a['ok'] == true);
