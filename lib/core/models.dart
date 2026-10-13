@@ -103,6 +103,9 @@ class MenuItem {
 
   bool get hasPhoto => imageUrl != null && !imageIsPlaceholder;
   bool get hasRequiredOptions => optionGroups.any((g) => g.required || g.min > 0);
+
+  /// The gluten-free base can be chosen for this dish (real option data, not a marketing tag).
+  bool get glutenFreeOption => optionGroups.any((g) => g.choices.any((c) => c.key == 'base-sin-gluten' && c.available));
 }
 
 class MenuCategory {

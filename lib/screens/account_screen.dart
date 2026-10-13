@@ -70,7 +70,7 @@ class _AccountScreenState extends State<AccountScreen> {
           else if (_orders!.isEmpty)
             SoftCard(
               child: Row(children: [
-                const Icon(Icons.receipt_long_outlined, color: Brand.hint),
+                const Icon(Icons.receipt_long_rounded, color: Brand.hint),
                 const SizedBox(width: 12),
                 Expanded(child: Text(s.t('noOrders'), style: const TextStyle(color: Brand.muted))),
                 TextButton(onPressed: () => context.go('/menu'), child: Text(s.t('orderNow'))),
@@ -92,7 +92,7 @@ class _AccountScreenState extends State<AccountScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(children: [
-              const _TileIcon(Icons.language),
+              const _TileIcon(Icons.language_rounded),
               const SizedBox(width: 14),
               Expanded(child: Text(s.t('language'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
               SegmentedButton<String>(
@@ -105,8 +105,8 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
             ]),
           ),
-          _Tile(icon: Icons.storefront_outlined, title: s.t('restaurants'), onTap: () => context.push('/restaurants')),
-          _Tile(icon: Icons.event_seat_outlined, title: s.t('reservations'), onTap: () => context.push('/reservations')),
+          _Tile(icon: Icons.storefront_rounded, title: s.t('restaurants'), onTap: () => context.push('/restaurants')),
+          _Tile(icon: Icons.event_available_rounded, title: s.t('reservations'), onTap: () => context.push('/reservations')),
           _Tile(icon: Icons.star_outline_rounded, title: s.t('rateApp'), onTap: () => ReviewPrompt.openStore(appStoreUrl: app.appStoreUrl)),
         ]),
         SectionHeader(title: s.t('info'), padding: const EdgeInsets.fromLTRB(4, 26, 4, 10)),
@@ -117,8 +117,8 @@ class _AccountScreenState extends State<AccountScreen> {
         if (user != null) ...[
           const SizedBox(height: 16),
           _Group(children: [
-            _Tile(icon: Icons.logout, title: s.t('logout'), onTap: () => app.logout()),
-            _Tile(icon: Icons.delete_outline, title: s.t('deleteAccount'), danger: true, onTap: () => _delete(context)),
+            _Tile(icon: Icons.logout_rounded, title: s.t('logout'), onTap: () => app.logout()),
+            _Tile(icon: Icons.delete_outline_rounded, title: s.t('deleteAccount'), danger: true, onTap: () => _delete(context)),
           ]),
         ],
         const SizedBox(height: 28),
@@ -235,7 +235,7 @@ class _Tile extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
         leading: _TileIcon(icon, danger: danger),
         title: Text(title, style: TextStyle(color: danger ? Brand.tomatoDark : Brand.charcoal)),
-        trailing: Icon(external ? Icons.open_in_new : Icons.chevron_right, size: external ? 18 : 22, color: Brand.hint),
+        trailing: Icon(external ? Icons.open_in_new_rounded : Icons.chevron_right_rounded, size: external ? 18 : 22, color: Brand.hint),
         onTap: onTap,
       );
 }
@@ -249,7 +249,7 @@ class _OrderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: const _TileIcon(Icons.receipt_long_outlined),
+        leading: const _TileIcon(Icons.receipt_long_rounded),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
@@ -258,7 +258,7 @@ class _OrderRow extends StatelessWidget {
             if (status != null) Pill(text: status!, color: Brand.charcoal, background: Brand.cream2),
           ]),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Brand.hint),
+        trailing: const Icon(Icons.chevron_right_rounded, color: Brand.hint),
         onTap: onTap,
       );
 }

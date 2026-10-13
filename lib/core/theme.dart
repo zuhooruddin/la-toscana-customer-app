@@ -28,33 +28,73 @@ class Brand {
 
   /// Soft warm shadow used by cards (website --shadow).
   static const shadow = [
-    BoxShadow(color: Color(0x0D2A1511), blurRadius: 6, offset: Offset(0, 2)),
-    BoxShadow(color: Color(0x142A1511), blurRadius: 28, offset: Offset(0, 10)),
+    BoxShadow(color: Color(0x082A1511), blurRadius: 4, offset: Offset(0, 2)),
+    BoxShadow(color: Color(0x0A2A1511), blurRadius: 16, offset: Offset(0, 6)),
   ];
-  static const shadowPrimary = [BoxShadow(color: Color(0x47D41423), blurRadius: 16, offset: Offset(0, 6))];
+  static const shadowPrimary = [
+    BoxShadow(color: Color(0x47D41423), blurRadius: 16, offset: Offset(0, 6)),
+  ];
 
   /// Website hero gradient (--hero-gradient).
-  static const heroGradient = LinearGradient(colors: [Color(0xFF241512), Color(0xFF5E1C17), tomato], stops: [0, 0.45, 1], begin: Alignment.topLeft, end: Alignment.bottomRight);
+  static const heroGradient = LinearGradient(
+    colors: [Color(0xFF241512), Color(0xFF5E1C17), tomato],
+    stops: [0, 0.45, 1],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
   /// Section heading in the display face.
-  static const h1 = TextStyle(fontFamily: display, fontSize: 28, fontWeight: FontWeight.w700, height: 1.12, color: charcoal);
-  static const h2 = TextStyle(fontFamily: display, fontSize: 22, fontWeight: FontWeight.w700, height: 1.15, color: charcoal);
-  static const h3 = TextStyle(fontFamily: display, fontSize: 18, fontWeight: FontWeight.w700, height: 1.2, color: charcoal);
-  static const price = TextStyle(color: tomato, fontWeight: FontWeight.w800, fontSize: 15);
+  static const h1 = TextStyle(
+    fontFamily: display,
+    fontSize: 28,
+    fontWeight: FontWeight.w700,
+    height: 1.12,
+    color: charcoal,
+  );
+  static const h2 = TextStyle(
+    fontFamily: display,
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    height: 1.15,
+    color: charcoal,
+  );
+  static const h3 = TextStyle(
+    fontFamily: display,
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    height: 1.2,
+    color: charcoal,
+  );
+  static const price = TextStyle(
+    color: tomato,
+    fontWeight: FontWeight.w800,
+    fontSize: 15,
+  );
 }
 
 ThemeData buildTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: Brand.tomato,
-    primary: Brand.tomato,
-    onPrimary: Colors.white,
-    secondary: Brand.basil,
-    surface: Colors.white,
-    onSurface: Brand.charcoal,
-    error: Brand.tomatoDark,
-  ).copyWith(outline: Brand.border, outlineVariant: Brand.divider, surfaceTint: Colors.transparent);
-  final rounded = RoundedRectangleBorder(borderRadius: BorderRadius.circular(14));
-  final base = ThemeData(useMaterial3: true, colorScheme: scheme, fontFamily: Brand.body);
+  final scheme =
+      ColorScheme.fromSeed(
+        seedColor: Brand.tomato,
+        primary: Brand.tomato,
+        onPrimary: Colors.white,
+        secondary: Brand.basil,
+        surface: Colors.white,
+        onSurface: Brand.charcoal,
+        error: Brand.tomatoDark,
+      ).copyWith(
+        outline: Brand.border,
+        outlineVariant: Brand.divider,
+        surfaceTint: Colors.transparent,
+      );
+  final rounded = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(14),
+  );
+  final base = ThemeData(
+    useMaterial3: true,
+    colorScheme: scheme,
+    fontFamily: Brand.body,
+  );
   return base.copyWith(
     scaffoldBackgroundColor: Brand.cream,
     textTheme: base.textTheme
@@ -64,22 +104,35 @@ ThemeData buildTheme() {
           headlineMedium: Brand.h1,
           headlineSmall: Brand.h2,
           titleLarge: Brand.h2.copyWith(fontSize: 21),
+          bodyLarge: const TextStyle(fontFamily: Brand.body, fontSize: 16, height: 1.5, color: Brand.charcoal),
+          bodyMedium: const TextStyle(fontFamily: Brand.body, fontSize: 14, height: 1.45, color: Brand.charcoal),
+          bodySmall: const TextStyle(fontFamily: Brand.body, fontSize: 12, height: 1.4, color: Brand.charcoal),
         ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Brand.cream,
       foregroundColor: Brand.charcoal,
       elevation: 0,
-      scrolledUnderElevation: 0.5,
+      scrolledUnderElevation: 0,
+      toolbarHeight: 64,
+      titleSpacing: 20,
       shadowColor: Color(0x33663B10),
       surfaceTintColor: Colors.transparent,
       centerTitle: false,
-      titleTextStyle: TextStyle(fontFamily: Brand.display, fontSize: 22, fontWeight: FontWeight.w700, color: Brand.charcoal),
+      titleTextStyle: TextStyle(
+        fontFamily: Brand.display,
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        color: Brand.charcoal,
+      ),
     ),
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: Brand.border)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: Brand.border),
+      ),
     ),
     dividerTheme: const DividerThemeData(color: Brand.divider, thickness: 1),
     filledButtonTheme: FilledButtonThemeData(
@@ -91,7 +144,11 @@ ThemeData buildTheme() {
         minimumSize: const Size(48, 52),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         shape: rounded,
-        textStyle: const TextStyle(fontFamily: Brand.body, fontWeight: FontWeight.w700, fontSize: 16),
+        textStyle: const TextStyle(
+          fontFamily: Brand.body,
+          fontWeight: FontWeight.w700,
+          fontSize: 16,
+        ),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -102,59 +159,130 @@ ThemeData buildTheme() {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         side: const BorderSide(color: Brand.border),
         shape: rounded,
-        textStyle: const TextStyle(fontFamily: Brand.body, fontWeight: FontWeight.w700, fontSize: 15),
+        textStyle: const TextStyle(
+          fontFamily: Brand.body,
+          fontWeight: FontWeight.w700,
+          fontSize: 15,
+        ),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: Brand.tomatoDark, textStyle: const TextStyle(fontFamily: Brand.body, fontWeight: FontWeight.w700)),
+      style: TextButton.styleFrom(
+        foregroundColor: Brand.tomatoDark,
+        textStyle: const TextStyle(
+          fontFamily: Brand.body,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     ),
-    iconButtonTheme: IconButtonThemeData(style: IconButton.styleFrom(foregroundColor: Brand.charcoal)),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        foregroundColor: Brand.charcoal,
+        minimumSize: const Size(48, 48),
+      ),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       hintStyle: const TextStyle(color: Brand.hint),
       labelStyle: const TextStyle(color: Brand.muted),
-      floatingLabelStyle: const TextStyle(color: Brand.tomatoDark, fontWeight: FontWeight.w600),
+      floatingLabelStyle: const TextStyle(
+        color: Brand.tomatoDark,
+        fontWeight: FontWeight.w600,
+      ),
       prefixIconColor: Brand.muted,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Brand.border)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Brand.border)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Brand.tomato, width: 1.6)),
-      errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Brand.tomatoDark)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Brand.border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Brand.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Brand.tomato, width: 1.6),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Brand.tomatoDark),
+      ),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: Colors.white,
       selectedColor: Brand.tomato,
       side: const BorderSide(color: Brand.border),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-      labelStyle: const TextStyle(fontFamily: Brand.body, fontWeight: FontWeight.w600, color: Brand.charcoal),
-      secondaryLabelStyle: const TextStyle(fontFamily: Brand.body, fontWeight: FontWeight.w700, color: Colors.white),
+      labelStyle: const TextStyle(
+        fontFamily: Brand.body,
+        fontWeight: FontWeight.w600,
+        color: Brand.charcoal,
+      ),
+      secondaryLabelStyle: const TextStyle(
+        fontFamily: Brand.body,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+      ),
       checkmarkColor: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? Brand.tomato : Colors.white),
-        foregroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? Colors.white : Brand.charcoal),
-        iconColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? Colors.white : Brand.muted),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? Brand.tomato : Colors.white,
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (s) =>
+              s.contains(WidgetState.selected) ? Colors.white : Brand.charcoal,
+        ),
+        iconColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? Colors.white : Brand.muted,
+        ),
         side: const WidgetStatePropertyAll(BorderSide(color: Brand.border)),
-        textStyle: const WidgetStatePropertyAll(TextStyle(fontFamily: Brand.body, fontWeight: FontWeight.w700)),
+        textStyle: const WidgetStatePropertyAll(
+          TextStyle(fontFamily: Brand.body, fontWeight: FontWeight.w700),
+        ),
         minimumSize: const WidgetStatePropertyAll(Size(48, 46)),
       ),
     ),
     checkboxTheme: CheckboxThemeData(
-      fillColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? Brand.tomato : null),
+      fillColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.selected) ? Brand.tomato : null,
+      ),
       side: const BorderSide(color: Brand.hint, width: 1.5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
     ),
-    radioTheme: RadioThemeData(fillColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? Brand.tomato : Brand.hint)),
-    switchTheme: SwitchThemeData(trackColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? Brand.tomato : null)),
-    listTileTheme: const ListTileThemeData(iconColor: Brand.muted, titleTextStyle: TextStyle(fontFamily: Brand.body, fontSize: 15, fontWeight: FontWeight.w600, color: Brand.charcoal)),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(color: Brand.tomato),
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.selected) ? Brand.tomato : Brand.hint,
+      ),
+    ),
+    switchTheme: SwitchThemeData(
+      trackColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.selected) ? Brand.tomato : null,
+      ),
+    ),
+    listTileTheme: const ListTileThemeData(
+      iconColor: Brand.muted,
+      titleTextStyle: TextStyle(
+        fontFamily: Brand.body,
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: Brand.charcoal,
+      ),
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: Brand.tomato,
+    ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
       backgroundColor: Brand.charcoal,
-      contentTextStyle: const TextStyle(fontFamily: Brand.body, color: Colors.white, fontWeight: FontWeight.w600),
+      contentTextStyle: const TextStyle(
+        fontFamily: Brand.body,
+        color: Colors.white,
+        fontWeight: FontWeight.w600,
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
     dialogTheme: DialogThemeData(
@@ -165,7 +293,9 @@ ThemeData buildTheme() {
     bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor: Colors.white,
       showDragHandle: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Colors.white,
@@ -173,11 +303,26 @@ ThemeData buildTheme() {
       elevation: 0,
       height: 68,
       indicatorColor: Brand.tomatoSoft,
-      iconTheme: WidgetStateProperty.resolveWith((s) => IconThemeData(color: s.contains(WidgetState.selected) ? Brand.tomato : Brand.muted, size: 24)),
+      iconTheme: WidgetStateProperty.resolveWith(
+        (s) => IconThemeData(
+          color: s.contains(WidgetState.selected) ? Brand.tomato : Brand.muted,
+          size: 24,
+        ),
+      ),
       labelTextStyle: WidgetStateProperty.resolveWith(
-        (s) => TextStyle(fontFamily: Brand.body, fontSize: 12, fontWeight: s.contains(WidgetState.selected) ? FontWeight.w800 : FontWeight.w600, color: s.contains(WidgetState.selected) ? Brand.tomato : Brand.muted),
+        (s) => TextStyle(
+          fontFamily: Brand.body,
+          fontSize: 12,
+          fontWeight: s.contains(WidgetState.selected)
+              ? FontWeight.w800
+              : FontWeight.w600,
+          color: s.contains(WidgetState.selected) ? Brand.tomato : Brand.muted,
+        ),
       ),
     ),
-    badgeTheme: const BadgeThemeData(backgroundColor: Brand.tomato, textColor: Colors.white),
+    badgeTheme: const BadgeThemeData(
+      backgroundColor: Brand.tomato,
+      textColor: Colors.white,
+    ),
   );
 }

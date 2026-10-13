@@ -69,14 +69,14 @@ class _AuthScreenState extends State<AuthScreen> {
           Text(s.t('authSubtitle'), textAlign: TextAlign.center, style: const TextStyle(color: Brand.muted, height: 1.45)),
           const SizedBox(height: 24),
           if (_register) ...[
-            TextFormField(controller: _name, decoration: InputDecoration(labelText: s.t('name'), prefixIcon: const Icon(Icons.person_outline)), textCapitalization: TextCapitalization.words, validator: (v) => (v ?? '').trim().isEmpty ? s.t('name') : null),
+            TextFormField(controller: _name, decoration: InputDecoration(labelText: s.t('name'), prefixIcon: const Icon(Icons.person_outline_rounded)), textCapitalization: TextCapitalization.words, validator: (v) => (v ?? '').trim().isEmpty ? s.t('name') : null),
             const SizedBox(height: 12),
-            TextFormField(controller: _phone, decoration: InputDecoration(labelText: s.t('phone'), prefixIcon: const Icon(Icons.phone_outlined)), keyboardType: TextInputType.phone),
+            TextFormField(controller: _phone, decoration: InputDecoration(labelText: s.t('phone'), prefixIcon: const Icon(Icons.phone_rounded)), keyboardType: TextInputType.phone),
             const SizedBox(height: 10),
           ],
           TextFormField(
             controller: _email,
-            decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.mail_outline)),
+            decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.mail_outline_rounded)),
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.email],
             validator: (v) => RegExp(r'^\S+@\S+\.\S+$').hasMatch((v ?? '').trim()) ? null : 'Email',
@@ -90,7 +90,7 @@ class _AuthScreenState extends State<AuthScreen> {
               labelText: s.t('password'),
               helperText: _register ? s.t('passwordHint') : null,
               helperMaxLines: 2,
-              prefixIcon: const Icon(Icons.lock_outline),
+              prefixIcon: const Icon(Icons.lock_outline_rounded),
               suffixIcon: IconButton(
                 tooltip: s.t('password'),
                 icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),

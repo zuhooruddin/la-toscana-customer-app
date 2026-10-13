@@ -259,7 +259,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ]),
           if (q != null && q.errors.any((e) => e.code.startsWith('COUPON'))) _Box(text: s.error('COUPON_INVALID'), danger: true),
           _Section(s.t('payment')),
-          Card(child: ListTile(leading: const Icon(Icons.payments_outlined, color: Brand.tomato), title: Text(s.t('cash')), subtitle: Text(s.t('cashHint')), trailing: const Icon(Icons.check_circle, color: Brand.basil))),
+          Card(child: ListTile(leading: const Icon(Icons.payments_rounded, color: Brand.tomato), title: Text(s.t('cash')), subtitle: Text(s.t('cashHint')), trailing: const Icon(Icons.check_circle_rounded, color: Brand.basil))),
           if (q?.card ?? false) Padding(padding: const EdgeInsets.only(top: 6), child: Text(s.t('cardUnavailable'), style: const TextStyle(color: Brand.muted, fontSize: 12))),
           Text(s.t('bizum'), style: const TextStyle(color: Brand.muted, fontSize: 12)),
           _Section(s.t('total')),
@@ -325,7 +325,7 @@ class _Box extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: danger ? Brand.tomatoSoft : Brand.warningSoft, borderRadius: BorderRadius.circular(12)),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(danger ? Icons.error_outline : Icons.info_outline, size: 18, color: danger ? Brand.tomatoDark : Brand.warning),
+          Icon(danger ? Icons.error_outline_rounded : Icons.info_outline_rounded, size: 18, color: danger ? Brand.tomatoDark : Brand.warning),
           const SizedBox(width: 8),
           Expanded(child: Text(text, style: TextStyle(color: danger ? Brand.tomatoDark : Brand.warning, height: 1.4))),
         ]),

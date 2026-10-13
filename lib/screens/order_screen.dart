@@ -121,7 +121,7 @@ class _OrderScreenState extends State<OrderScreen> {
     final o = _order;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.close), tooltip: s.t('close'), onPressed: () => context.canPop() ? context.pop() : context.go('/')),
+        leading: IconButton(icon: const Icon(Icons.close_rounded), tooltip: s.t('close'), onPressed: () => context.canPop() ? context.pop() : context.go('/')),
         title: Text(o == null ? s.t('order') : '${s.t('order')} ${o.number}'),
       ),
       body: o == null
@@ -201,7 +201,7 @@ class _Steps extends StatelessWidget {
     return Column(children: [
       for (var i = 0; i < flow.length; i++)
         Row(children: [
-          Icon(i <= idx ? Icons.check_circle : Icons.radio_button_unchecked, color: i <= idx ? Brand.basil : Brand.border),
+          Icon(i <= idx ? Icons.check_circle_rounded : Icons.radio_button_unchecked, color: i <= idx ? Brand.basil : Brand.border),
           const SizedBox(width: 10),
           Expanded(child: Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(s.t('status.${flow[i]}'), style: TextStyle(fontWeight: i == idx ? FontWeight.w800 : FontWeight.w500)))),
           if (order.history[flow[i]] != null) Text(hhmm(order.history[flow[i]]!), style: const TextStyle(color: Brand.muted)),

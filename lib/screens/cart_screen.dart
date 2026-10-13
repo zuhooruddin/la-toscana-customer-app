@@ -25,7 +25,7 @@ class CartScreen extends StatelessWidget {
               icon: Icons.shopping_bag_outlined,
               title: s.t('emptyCart'),
               body: s.t('cartHint'),
-              action: FilledButton.icon(onPressed: () => context.go('/menu'), icon: const Icon(Icons.local_pizza_outlined), label: Text(s.t('seeMenu'))),
+              action: FilledButton.icon(onPressed: () => context.go('/menu'), icon: const Icon(Icons.restaurant_menu_rounded), label: Text(s.t('seeMenu'))),
             )
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
@@ -39,7 +39,7 @@ class CartScreen extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(color: Brand.tomatoSoft, borderRadius: BorderRadius.circular(12)),
-                        child: Icon(app.mode == 'delivery' ? Icons.delivery_dining_outlined : Icons.storefront_outlined, color: Brand.tomato, size: 22),
+                        child: Icon(app.mode == 'delivery' ? Icons.delivery_dining_rounded : Icons.storefront_rounded, color: Brand.tomato, size: 22),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -48,7 +48,7 @@ class CartScreen extends StatelessWidget {
                           Text(branch.name, style: const TextStyle(fontWeight: FontWeight.w800)),
                         ]),
                       ),
-                      const Icon(Icons.chevron_right, color: Brand.muted),
+                      const Icon(Icons.chevron_right_rounded, color: Brand.muted),
                     ]),
                   ),
                   const SizedBox(height: 16),
@@ -70,7 +70,7 @@ class CartScreen extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Row(children: [
-                                  const Icon(Icons.edit_note, size: 15, color: Brand.warning),
+                                  const Icon(Icons.edit_note_rounded, size: 15, color: Brand.warning),
                                   const SizedBox(width: 4),
                                   Expanded(child: Text(l.notes!, style: const TextStyle(color: Brand.warning, fontSize: 12))),
                                 ]),
@@ -90,7 +90,7 @@ class CartScreen extends StatelessWidget {
                     ),
                   ),
                 const SizedBox(height: 6),
-                TextButton.icon(onPressed: () => context.go('/menu'), icon: const Icon(Icons.add), label: Text(s.t('seeMenu'))),
+                TextButton.icon(onPressed: () => context.go('/menu'), icon: const Icon(Icons.add_rounded), label: Text(s.t('seeMenu'))),
                 const SizedBox(height: 6),
                 SoftCard(
                   child: Column(children: [
@@ -101,7 +101,7 @@ class CartScreen extends StatelessWidget {
                     ]),
                     const SizedBox(height: 6),
                     Row(children: [
-                      const Icon(Icons.info_outline, size: 14, color: Brand.hint),
+                      const Icon(Icons.info_outline_rounded, size: 14, color: Brand.hint),
                       const SizedBox(width: 6),
                       Expanded(child: Text(s.t('finalTotalNote'), style: const TextStyle(color: Brand.muted, fontSize: 12))),
                     ]),
@@ -119,7 +119,7 @@ class CartScreen extends StatelessWidget {
                   const Spacer(),
                   Text(eur(cart.subtotalCents, app.lang)),
                   const SizedBox(width: 6),
-                  const Icon(Icons.arrow_forward, size: 18),
+                  const Icon(Icons.arrow_forward_rounded, size: 18),
                 ]),
               ),
             ),
@@ -136,9 +136,9 @@ class _QtyControl extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(color: Brand.cream, borderRadius: BorderRadius.circular(999), border: Border.all(color: Brand.border)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          _btn(quantity == 1 ? Icons.delete_outline : Icons.remove, '-1', onMinus, quantity == 1 ? Brand.tomatoDark : Brand.charcoal),
+          _btn(quantity == 1 ? Icons.delete_outline_rounded : Icons.remove_rounded, '-1', onMinus, quantity == 1 ? Brand.tomatoDark : Brand.charcoal),
           SizedBox(width: 24, child: Text('$quantity', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w800))),
-          _btn(Icons.add, '+1', onPlus, Brand.tomato),
+          _btn(Icons.add_rounded, '+1', onPlus, Brand.tomato),
         ]),
       );
 

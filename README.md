@@ -31,6 +31,16 @@ flutter run --dart-define=API_URL=https://api.example.com --dart-define=WEBSITE_
 Debug builds allow plain HTTP to a local API; release builds are HTTPS only. Tokens are stored in the platform keystore
 (`flutter_secure_storage`).
 
+For a physical Android phone over USB (with the backend running on port 4000):
+
+```bash
+adb reverse tcp:4000 tcp:4000
+flutter run --dart-define=API_URL=http://127.0.0.1:4000
+```
+
+Repeat `adb reverse` after reconnecting the phone. `10.0.2.2` is for the Android
+emulator only. An API URL change requires a full restart of the app run.
+
 ## Checks
 
 ```bash

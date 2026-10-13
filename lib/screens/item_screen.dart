@@ -12,18 +12,22 @@ import '../core/theme.dart';
 import '../state/app_state.dart';
 import '../state/cart.dart';
 import '../state/cart_logic.dart';
+import '../state/favorites.dart';
 import '../widgets/common.dart';
 
 class ItemScreen extends StatefulWidget {
-  const ItemScreen({super.key, required this.itemId});
+  const ItemScreen({super.key, required this.itemId, this.initialQty = 1});
   final String itemId;
+
+  /// Quantity carried over from a dish card's stepper.
+  final int initialQty;
   @override
   State<ItemScreen> createState() => _ItemScreenState();
 }
 
 class _ItemScreenState extends State<ItemScreen> {
   Selection _sel = {};
-  int _qty = 1;
+  late int _qty = widget.initialQty.clamp(1, 50);
   bool _touched = false;
   final _notes = TextEditingController();
 
@@ -44,43 +48,53 @@ class _ItemScreenState extends State<ItemScreen> {
     final canOrder = app.branch != null && item.orderable && !item.soldOut;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Brand.cream,
       body: CustomScrollView(slivers: [
         SliverAppBar(
-          expandedHeight: 300,
+          expandedHeight: 320,
           pinned: true,
           stretch: true,
-          backgroundColor: Colors.white,
+          backgroundColor: Brand.cream,
           automaticallyImplyLeading: false,
-          leading: Padding(padding: const EdgeInsets.all(6), child: _CircleButton(icon: Icons.arrow_back, tooltip: MaterialLocalizations.of(context).backButtonTooltip, onTap: () => context.pop())),
+          leadingWidth: 64,
+          leading: Padding(padding: const EdgeInsets.only(left: 14), child: Center(child: _CircleButton(icon: Icons.arrow_back_rounded, tooltip: MaterialLocalizations.of(context).backButtonTooltip, onTap: () => context.pop()))),
           actions: [
-            // Shares the public web page (Open Graph preview, works without the app; opens in the app via App Links).
-            Padding(
-              padding: const EdgeInsets.all(6),
-              child: _CircleButton(
-                icon: Icons.ios_share,
-                tooltip: s.t('share'),
-                onTap: () => SharePlus.instance.share(ShareParams(text: '${s.t('shareDish').replaceAll('{name}', item.name)}\n${WebLinks.dish(app.lang, item.slug)}')),
-              ),
+            _CircleButton(
+              icon: context.watch<FavoritesStore>().contains(item.id) ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              color: context.watch<FavoritesStore>().contains(item.id) ? Brand.tomato : Brand.charcoal,
+              tooltip: s.t(context.watch<FavoritesStore>().contains(item.id) ? 'removeFavourite' : 'addFavourite'),
+              onTap: () => context.read<FavoritesStore>().toggle(item.id),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 10),
+            // Shares the public web page (Open Graph preview, works without the app; opens in the app via App Links).
+            _CircleButton(
+              icon: Icons.ios_share,
+              tooltip: s.t('share'),
+              onTap: () => SharePlus.instance.share(ShareParams(text: '${s.t('shareDish').replaceAll('{name}', item.name)}\n${WebLinks.dish(app.lang, item.slug)}')),
+            ),
+            const SizedBox(width: 14),
           ],
           flexibleSpace: FlexibleSpaceBar(
             stretchModes: const [StretchMode.zoomBackground],
             background: DishImage(url: item.hasPhoto ? item.imageUrl : null, radius: 0),
           ),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(20),
-            child: Container(height: 20, decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24)))),
+            preferredSize: const Size.fromHeight(24),
+            child: Container(height: 24, decoration: const BoxDecoration(color: Brand.cream, borderRadius: BorderRadius.vertical(top: Radius.circular(28)))),
           ),
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
           sliver: SliverList.list(children: [
-            Text(item.name, style: Brand.h1),
-            const SizedBox(height: 6),
-            Text(itemPriceLabel(s, item, app.lang), style: Brand.price.copyWith(fontSize: 20)),
-            if (item.description.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 10), child: Text(item.description, style: const TextStyle(color: Brand.muted, fontSize: 15, height: 1.5))),
+            Text(item.name, style: Brand.h1.copyWith(fontSize: 32)),
+            const SizedBox(height: 8),
+            Text(itemPriceLabel(s, item, app.lang), style: Brand.price.copyWith(fontSize: 26)),
+            if (item.description.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 8), child: Text(item.description, style: const TextStyle(color: Brand.muted, fontSize: 16, height: 1.45))),
+            if (item.glutenFreeOption)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Wrap(spacing: 8, runSpacing: 8, children: [InfoChip(icon: Icons.grass_rounded, text: s.t('glutenFreeOption'))]),
+              ),
             const SizedBox(height: 6),
             if (!item.allergensVerified) _Note(text: s.t('allergensPending')),
             if (item.orderableNote != null) _Note(text: item.orderableNote!),
@@ -88,13 +102,13 @@ class _ItemScreenState extends State<ItemScreen> {
             if (app.branch == null)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
-                child: OutlinedButton.icon(onPressed: () => context.push('/select'), icon: const Icon(Icons.place_outlined), label: Text(s.t('chooseRestaurant'))),
+                child: OutlinedButton.icon(onPressed: () => context.push('/select'), icon: const Icon(Icons.location_on_rounded), label: Text(s.t('chooseRestaurant'))),
               ),
             for (final g in item.optionGroups) _Group(group: g, sel: _sel, error: _touched && missing.contains(g), onChanged: (sel) => setState(() => _sel = normaliseSelection(item, sel))),
-            const SizedBox(height: 24),
-            Text(s.t('instructions'), style: Brand.h3),
+            const SizedBox(height: 26),
+            Text(s.t('instructions'), style: Brand.h2),
             const SizedBox(height: 10),
-            TextField(controller: _notes, maxLength: 200, maxLines: 2, decoration: InputDecoration(hintText: s.t('instructionsHint'), fillColor: Brand.surfaceWarm)),
+            TextField(controller: _notes, maxLength: 200, maxLines: 2, decoration: InputDecoration(hintText: s.t('instructionsHint'))),
             const SizedBox(height: 24),
           ]),
         ),
@@ -102,11 +116,12 @@ class _ItemScreenState extends State<ItemScreen> {
       bottomNavigationBar: BottomActionBar(
         child: Row(children: [
           if (canOrder) ...[
-            _Stepper(value: _qty, onChanged: (v) => setState(() => _qty = v)),
+            QtyStepper(value: _qty, compact: false, onChanged: (v) => setState(() => _qty = v)),
             const SizedBox(width: 12),
           ],
           Expanded(
             child: FilledButton(
+              style: FilledButton.styleFrom(minimumSize: const Size(48, 56), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
               onPressed: app.branch == null
                   ? () => context.push('/select')
                   : !canOrder
@@ -120,7 +135,10 @@ class _ItemScreenState extends State<ItemScreen> {
                         },
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(app.branch == null ? s.t('chooseRestaurant') : '${s.t('addToCart')} · ${eur(total, app.lang)}'),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  if (app.branch != null) ...[const Icon(Icons.shopping_cart_outlined, size: 22), const SizedBox(width: 10)],
+                  Text(app.branch == null ? s.t('chooseRestaurant') : '${s.t('addToCart')} · ${eur(total, app.lang)}'),
+                ]),
               ),
             ),
           ),
@@ -131,10 +149,11 @@ class _ItemScreenState extends State<ItemScreen> {
 }
 
 class _CircleButton extends StatelessWidget {
-  const _CircleButton({required this.icon, required this.tooltip, required this.onTap});
+  const _CircleButton({required this.icon, required this.tooltip, required this.onTap, this.color = Brand.charcoal});
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
+  final Color color;
   @override
   Widget build(BuildContext context) => Tooltip(
         message: tooltip,
@@ -143,25 +162,8 @@ class _CircleButton extends StatelessWidget {
           shape: const CircleBorder(),
           elevation: 2,
           shadowColor: Colors.black26,
-          child: InkWell(customBorder: const CircleBorder(), onTap: onTap, child: SizedBox(width: 40, height: 40, child: Icon(icon, size: 20, color: Brand.charcoal))),
+          child: InkWell(customBorder: const CircleBorder(), onTap: onTap, child: SizedBox(width: 46, height: 46, child: Icon(icon, size: 22, color: color))),
         ),
-      );
-}
-
-/// − qty + pill.
-class _Stepper extends StatelessWidget {
-  const _Stepper({required this.value, required this.onChanged});
-  final int value;
-  final ValueChanged<int> onChanged;
-  @override
-  Widget build(BuildContext context) => Container(
-        height: 52,
-        decoration: BoxDecoration(color: Brand.cream, borderRadius: BorderRadius.circular(14), border: Border.all(color: Brand.border)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          IconButton(tooltip: '-1', onPressed: value > 1 ? () => onChanged(value - 1) : null, icon: const Icon(Icons.remove, size: 20)),
-          SizedBox(width: 22, child: Text('$value', textAlign: TextAlign.center, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800))),
-          IconButton(tooltip: '+1', onPressed: value < 50 ? () => onChanged(value + 1) : null, icon: const Icon(Icons.add, size: 20, color: Brand.tomato)),
-        ]),
       );
 }
 
@@ -172,12 +174,12 @@ class _Note extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: danger ? Brand.tomatoSoft : Brand.warningSoft, borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(color: danger ? Brand.tomatoSoft : Brand.warningSoft, borderRadius: BorderRadius.circular(16)),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(danger ? Icons.block : Icons.info_outline, size: 17, color: danger ? Brand.tomatoDark : Brand.warning),
+          Icon(danger ? Icons.block : Icons.error_outline_rounded, size: 20, color: danger ? Brand.tomatoDark : Brand.warning),
           const SizedBox(width: 8),
-          Expanded(child: Text(text, style: TextStyle(color: danger ? Brand.tomatoDark : Brand.warning, fontSize: 13, height: 1.4))),
+          Expanded(child: Text(text, style: TextStyle(color: danger ? Brand.tomatoDark : Brand.warning, fontSize: 14, height: 1.4))),
         ]),
       );
 }
@@ -201,13 +203,13 @@ class _Group extends StatelessWidget {
       padding: const EdgeInsets.only(top: 26),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Expanded(child: Text(group.name, style: Brand.h3)),
+          Expanded(child: Text(group.name, style: Brand.h2)),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(color: req ? (error ? Brand.tomato : Brand.tomatoSoft) : Brand.cream2, borderRadius: BorderRadius.circular(999)),
             child: Text(
               req ? '${s.t('required')} · ${s.t('chooseN').replaceAll('{n}', '${group.min > 0 ? group.min : 1}')}' : '${s.t('upToN').replaceAll('{n}', '$max')} · ${s.t('optional')}',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: req ? (error ? Colors.white : Brand.tomatoDark) : Brand.muted),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: req ? (error ? Colors.white : Brand.tomatoDark) : Brand.muted),
             ),
           ),
         ]),
@@ -220,17 +222,41 @@ class _Group extends StatelessWidget {
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
               color: checked ? const Color(0xFFFFF8F7) : Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: checked ? Brand.tomato : Brand.border, width: checked ? 1.6 : 1)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: checked ? Brand.tomato : Brand.border, width: checked ? 1.6 : 1)),
               clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                enabled: !disabled,
-                dense: true,
-                onTap: () => onChanged(toggleChoice(group, sel, c.key)),
-                leading: c.image != null
-                    ? ClipRRect(borderRadius: BorderRadius.circular(8), child: CachedNetworkImage(imageUrl: c.image!, width: 40, height: 40, fit: BoxFit.cover))
-                    : Icon(single ? (checked ? Icons.radio_button_checked : Icons.radio_button_off) : (checked ? Icons.check_box : Icons.check_box_outline_blank), color: checked ? Brand.tomato : null),
-                title: Text(c.name + (c.needsConfirmation ? ' (${s.t('pending')})' : '') + (!c.available ? ' — ${s.t('soldOut')}' : '')),
-                trailing: Text(delta(c.priceDeltaCents, lang), style: TextStyle(fontWeight: FontWeight.w700, color: checked ? Brand.tomato : Brand.muted)),
+              child: InkWell(
+                onTap: disabled ? null : () => onChanged(toggleChoice(group, sel, c.key)),
+                child: Opacity(
+                  opacity: disabled ? 0.5 : 1,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 16, 10),
+                    child: Row(children: [
+                      Icon(
+                        single ? (checked ? Icons.radio_button_checked : Icons.radio_button_off) : (checked ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded),
+                        color: checked ? Brand.tomato : Brand.muted,
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(color: Brand.cream2, shape: BoxShape.circle),
+                        clipBehavior: Clip.antiAlias,
+                        child: c.image != null
+                            ? CachedNetworkImage(imageUrl: c.image!, fit: BoxFit.cover, errorWidget: (_, _, _) => const Icon(Icons.restaurant_rounded, size: 18, color: Brand.tomato))
+                            : const Icon(Icons.restaurant_rounded, size: 18, color: Brand.tomato),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          c.name + (c.needsConfirmation ? ' (${s.t('pending')})' : '') + (!c.available ? ' — ${s.t('soldOut')}' : ''),
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(delta(c.priceDeltaCents, lang), style: TextStyle(fontWeight: FontWeight.w700, color: checked ? Brand.tomato : Brand.charcoal)),
+                    ]),
+                  ),
+                ),
               ),
             );
           }),
